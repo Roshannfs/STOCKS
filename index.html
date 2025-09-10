@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ROSHAN - Real-Time AI Stock Predictor | Final Year Project 2024-25</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+    <script src="https://cdn.jsdelivr.net/npm/date-fns@2.29.3/index.min.js"></script>
+</head>
+<body>
+    <!-- Academic Header -->
+    <header class="academic-header">
+        <div class="container">
+            <div class="header-content">
+                <div class="academic-info">
+                    <div class="badge">FINAL YEAR PROJECT 2024-25</div>
+                    <h1 class="student-name">ROSHAN</h1>
+                    <p class="department">B.Tech (AI&DS)</p>
+                </div>
+                <div class="project-info">
+                    <h2 class="project-title">Real-Time AI Stock Predictor</h2>
+                    <p class="project-subtitle">🔴 LIVE: Genuine Market Data with Twelve Data API</p>
+                </div>
+                <div class="system-status">
+                    <div class="status-item">
+                        <span class="status-label">Market Status</span>
+                        <span class="status-value" id="market-status">🟡 Checking...</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">API Status</span>
+                        <span class="status-value" id="api-status">🔴 Connecting...</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Last Update</span>
+                        <span class="status-value" id="last-update">--:--:--</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Data Source</span>
+                        <span class="status-value">🔴 Twelve Data API</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Search Section -->
+    <section class="search-section">
+        <div class="container">
+            <div class="search-container">
+                <div class="search-input-group">
+                    <input type="text" 
+                           id="stock-search" 
+                           class="search-input" 
+                           placeholder="🔍 Search real stocks by symbol or company name (e.g., AAPL, Tesla, Microsoft)..."
+                           autocomplete="off">
+                    <button class="search-btn" id="search-btn">🔍</button>
+                </div>
+                <div class="search-results" id="search-results"></div>
+            </div>
+            
+            <!-- Popular Stocks Quick Access -->
+            <div class="popular-stocks">
+                <h3>🔥 Popular Stocks - Real-Time Data Available</h3>
+                <div class="stock-buttons">
+                    <button class="stock-quick-btn" data-symbol="AAPL" title="Apple Inc. - Real-time data">AAPL</button>
+                    <button class="stock-quick-btn" data-symbol="MSFT" title="Microsoft Corporation - Real-time data">MSFT</button>
+                    <button class="stock-quick-btn" data-symbol="GOOGL" title="Alphabet Inc. - Real-time data">GOOGL</button>
+                    <button class="stock-quick-btn" data-symbol="TSLA" title="Tesla, Inc. - Real-time data">TSLA</button>
+                    <button class="stock-quick-btn" data-symbol="NVDA" title="NVIDIA Corporation - Real-time data">NVDA</button>
+                    <button class="stock-quick-btn" data-symbol="AMZN" title="Amazon.com Inc. - Real-time data">AMZN</button>
+                    <button class="stock-quick-btn" data-symbol="META" title="Meta Platforms, Inc. - Real-time data">META</button>
+                    <button class="stock-quick-btn" data-symbol="NFLX" title="Netflix, Inc. - Real-time data">NFLX</button>
+                    <button class="stock-quick-btn" data-symbol="AMD" title="Advanced Micro Devices - Real-time data">AMD</button>
+                    <button class="stock-quick-btn" data-symbol="INTC" title="Intel Corporation - Real-time data">INTC</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <main class="main-content">
+        <div class="container">
+            <!-- Stock Dashboard -->
+            <section class="stock-dashboard">
+              
+                <div class="stock-header">
+                    <div class="stock-info">
+                        <h2 class="company-name" id="company-name">Select a stock to begin real-time monitoring</h2>
+                        <div class="stock-symbol" id="stock-symbol">-- • Exchange • Status</div>
+                    </div>
+                    <div class="price-info">
+                        <div class="current-price" id="current-price">$0.00</div>
+                        <div class="price-change" id="price-change">$0.00 (0.00%)</div>
+                    </div>
+                </div>
+
+                <div class="stock-metrics">
+                    <div class="metric-card">
+                        <span class="metric-label">🔴 Live Volume</span>
+                        <span class="metric-value" id="volume">--</span>
+                    </div>
+                    <div class="metric-card">
+                        <span class="metric-label">📊 Day Range</span>
+                        <span class="metric-value" id="day-range">$-- - $--</span>
+                    </div>
+                    <div class="metric-card">
+                        <span class="metric-label">📈 Previous Close</span>
+                        <span class="metric-value" id="prev-close">$--</span>
+                    </div>
+                    <div class="metric-card">
+                        <span class="metric-label">💰 Market Cap</span>
+                        <span class="metric-value" id="market-cap">--</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Chart Controls -->
+            <section class="chart-controls">
+                <div class="control-group">
+                    <label class="form-label">📊 Chart Type</label>
+                    <div class="btn-group">
+                        <button class="btn btn--secondary chart-type-btn active" data-type="candlestick">📊 Candlestick</button>
+                        <button class="btn btn--secondary chart-type-btn" data-type="line">📈 Line</button>
+                        <button class="btn btn--secondary chart-type-btn" data-type="area">📊 Area</button>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="form-label">⏱️ Timeframe</label>
+                    <div class="btn-group">
+                        <button class="btn btn--secondary timeframe-btn active" data-timeframe="1D">1D</button>
+                        <button class="btn btn--secondary timeframe-btn" data-timeframe="1W">1W</button>
+                        <button class="btn btn--secondary timeframe-btn" data-timeframe="1M">1M</button>
+                        <button class="btn btn--secondary timeframe-btn" data-timeframe="3M">3M</button>
+                        <button class="btn btn--secondary timeframe-btn" data-timeframe="1Y">1Y</button>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="form-label">💱 Currency</label>
+                    <select class="form-control" id="currency-selector">
+                        <option value="USD">USD ($)</option>
+                        <option value="EUR">EUR (€)</option>
+                        <option value="GBP">GBP (£)</option>
+                        <option value="JPY">JPY (¥)</option>
+                        <option value="INR">INR (₹)</option>
+                    </select>
+                </div>
+            </section>
+
+            <!-- Main Chart -->
+            <section class="chart-section">
+                <div class="chart-header">
+                    <h3>🔴 LIVE: Real-Time Market Chart</h3>
+                    <p class="chart-subtitle">Data powered by Twelve Data API • Updates every 30 seconds</p>
+                </div>
+                <div class="chart-container" style="position: relative; height: 500px;">
+                    <canvas id="main-chart"></canvas>
+                </div>
+                <div class="chart-loading" id="chart-loading" style="display: none;">
+                    <div class="loading-spinner"></div>
+                    <p>🔄 Loading genuine real-time data from Twelve Data API...</p>
+                </div>
+            </section>
+
+            <!-- AI Prediction Section -->
+            <section class="prediction-section">
+                <div class="section-header">
+                    <h3>🤖 AI-Powered Stock Prediction</h3>
+                    <p class="section-subtitle">Machine learning models trained on GENUINE historical market data</p>
+                </div>
+
+                <div class="prediction-config">
+                    <div class="config-grid">
+                        <div class="config-item">
+                            <label class="form-label">📅 Prediction Period</label>
+                            <select class="form-control" id="prediction-period">
+                                <option value="1">1 Day</option>
+                                <option value="3">3 Days</option>
+                                <option value="7" selected>1 Week</option>
+                                <option value="30">1 Month</option>
+                            </select>
+                        </div>
+                        <div class="config-item">
+                            <label class="form-label">🧠 ML Model</label>
+                            <select class="form-control" id="ml-model">
+                                <option value="linear">Linear Regression</option>
+                                <option value="moving_average">Moving Average Crossover</option>
+                                <option value="momentum">Momentum Analysis</option>
+                            </select>
+                        </div>
+                        <div class="config-item">
+                            <button class="btn btn--primary" id="generate-prediction">🚀 Generate Prediction</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="prediction-results" id="prediction-results" style="display: none;">
+                    <div class="prediction-metrics">
+                        <div class="prediction-card">
+                            <h4>💰 Current Price</h4>
+                            <div class="prediction-value current" id="pred-current-price">$0.00</div>
+                            <small>🔴 Real-time data</small>
+                        </div>
+                        <div class="prediction-card">
+                            <h4>🎯 Predicted Price</h4>
+                            <div class="prediction-value predicted" id="pred-future-price">$0.00</div>
+                            <small>🤖 AI forecast</small>
+                        </div>
+                        <div class="prediction-card">
+                            <h4>📈 Expected Change</h4>
+                            <div class="prediction-value change" id="pred-change">0.00%</div>
+                            <small>Percentage movement</small>
+                        </div>
+                        <div class="prediction-card">
+                            <h4>🎯 Confidence Level</h4>
+                            <div class="prediction-value confidence" id="pred-confidence">0%</div>
+                            <small>Model accuracy</small>
+                        </div>
+                    </div>
+
+                    <div class="prediction-chart-container">
+                        <h4>📊 Price Prediction Visualization</h4>
+                        <p class="chart-subtitle">🔴 Historical (Real Data) vs 🤖 AI Prediction</p>
+                        <div class="chart-container" style="position: relative; height: 300px;">
+                            <canvas id="prediction-chart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="prediction-details">
+                        <h4>🔬 Model Details</h4>
+                        <div class="model-info">
+                            <div class="info-item">
+                                <span class="info-label">🧠 Model Used:</span>
+                                <span class="info-value" id="model-used">Linear Regression</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">📊 Training Data:</span>
+                                <span class="info-value" id="data-points">30 days real market data</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">🎯 Model Accuracy:</span>
+                                <span class="info-value" id="model-accuracy">85%</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">📡 Data Quality:</span>
+                                <span class="info-value">🔴 GENUINE Real-Time</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Technical Analysis -->
+            <section class="analysis-section">
+                <div class="section-header">
+                    <h3>📊 Technical Analysis</h3>
+                    <p class="section-subtitle">🔴 Calculated from genuine real-time market data</p>
+                </div>
+                
+                <div class="analysis-grid">
+                    <div class="analysis-card">
+                        <h4>📈 Technical Indicators</h4>
+                        <div class="indicators-list">
+                            <div class="indicator-item">
+                                <span class="indicator-name">📊 RSI (14)</span>
+                                <span class="indicator-value" id="rsi-value">--</span>
+                            </div>
+                            <div class="indicator-item">
+                                <span class="indicator-name">📈 SMA (20)</span>
+                                <span class="indicator-value" id="sma20-value">$--</span>
+                            </div>
+                            <div class="indicator-item">
+                                <span class="indicator-name">📈 SMA (50)</span>
+                                <span class="indicator-value" id="sma50-value">$--</span>
+                            </div>
+                            <div class="indicator-item">
+                                <span class="indicator-name">📊 Volatility</span>
+                                <span class="indicator-value" id="volatility-value">--%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="analysis-card">
+                        <h4>🎯 Market Sentiment</h4>
+                        <div class="sentiment-meter">
+                            <div class="meter-bar">
+                                <div class="meter-fill" id="sentiment-fill" style="width: 50%"></div>
+                            </div>
+                            <div class="sentiment-labels">
+                                <span>📉 Bearish</span>
+                                <span>➖ Neutral</span>
+                                <span>📈 Bullish</span>
+                            </div>
+                            <div class="sentiment-value" id="sentiment-value">Neutral</div>
+                        </div>
+                        <small>🔴 Based on real-time price movements</small>
+                    </div>
+
+                    <div class="analysis-card">
+                        <h4>🎯 Price Targets</h4>
+                        <div class="price-targets">
+                            <div class="target-item">
+                                <span class="target-label">📉 Support Level</span>
+                                <span class="target-value" id="support-level">$--</span>
+                            </div>
+                            <div class="target-item">
+                                <span class="target-label">📈 Resistance Level</span>
+                                <span class="target-value" id="resistance-level">$--</span>
+                            </div>
+                            <div class="target-item">
+                                <span class="target-label">🎯 Price Target</span>
+                                <span class="target-value" id="price-target">$--</span>
+                            </div>
+                        </div>
+                        <small>🔴 Calculated from genuine market data</small>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Real-Time Features Info -->
+            <section class="features-section">
+                <div class="section-header">
+                    <h3>🔴 GENUINE Real-Time Features</h3>
+                    <p class="section-subtitle">This system uses actual live market data, not simulated results</p>
+                </div>
+
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">📡</div>
+                        <h4>Twelve Data API</h4>
+                        <p>Direct integration with professional financial data provider. Real quotes, real prices, real movements.</p>
+                        <div class="feature-status">✅ ACTIVE</div>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-icon">⏰</div>
+                        <h4>30-Second Updates</h4>
+                        <p>Automatic real-time data refresh every 30 seconds during market hours. Watch prices change live.</p>
+                        <div class="feature-status">🔄 LIVE</div>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-icon">🤖</div>
+                        <h4>AI on Real Data</h4>
+                        <p>Machine learning models trained on genuine historical market data for accurate predictions.</p>
+                        <div class="feature-status">🧠 SMART</div>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-icon">🔍</div>
+                        <h4>10,000+ Stocks</h4>
+                        <p>Search and monitor thousands of real stocks from major global exchanges with live data.</p>
+                        <div class="feature-status">🌍 GLOBAL</div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Academic Footer -->
+    <footer class="academic-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>📚 Project Information</h4>
+                    <p><strong>Title:</strong> Real-Time AI Stock Predictor with Genuine Live Market Data</p>
+                    <p><strong>Student:</strong> ROSHAN</p>
+                    <p><strong>Department:</strong> B.Tech (AI&DS)</p>
+                    <p><strong>Academic Year:</strong> 2024-2025</p>
+                    <p><strong>Data Source:</strong> 🔴 Twelve Data API (Live)</p>
+                </div>
+                <div class="footer-section">
+                    <h4>⚡ Technical Features</h4>
+                    <ul>
+                        <li>🔴 GENUINE Twelve Data API integration</li>
+                        <li>🤖 Machine learning predictions on real data</li>
+                        <li>📊 Interactive real-time candlestick charts</li>
+                        <li>📈 Advanced technical analysis with live data</li>
+                        <li>💱 Multi-currency support</li>
+                        <li>⏰ 30-second automatic updates</li>
+                        <li>🔍 Real-time stock search (10,000+ symbols)</li>
+                        <li>📱 Fully responsive design</li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>⚠️ Academic Disclaimer</h4>
+                    <p><strong>Educational Purpose:</strong> This project is developed for educational purposes as part of academic requirements for B.Tech (AI&DS) program.</p>
+                    <p><strong>Investment Warning:</strong> The stock predictions generated are based on historical data analysis and machine learning models. They should NOT be used for actual investment decisions.</p>
+                    <p><strong>Data Accuracy:</strong> While we use genuine real-time data from Twelve Data API, market conditions can change rapidly. Always consult with qualified financial advisors.</p>
+                    <p><strong>API Limitations:</strong> Free tier provides 800 API calls per day. Real-time updates may pause when limit is reached.</p>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <div class="academic-seal">
+                    <div class="seal-content">
+                        <div class="seal-text">FINAL YEAR PROJECT</div>
+                        <div class="seal-year">2024-25</div>
+                        <div class="seal-student">ROSHAN</div>
+                        <div class="seal-dept">B.Tech (AI&DS)</div>
+                    </div>
+                </div>
+                <div class="api-attribution">
+                    <p>📡 Real-Time Data Powered By:</p>
+                    <div class="api-logo">
+                        <strong>TWELVE DATA API</strong>
+                        <small>Professional Financial Data Provider</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>
