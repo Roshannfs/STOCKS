@@ -15,7 +15,7 @@ class RealTimeStockPredictor {
 
         // TWELVE DATA API Configuration - REAL-TIME DATA SOURCE
         this.twelveDataBaseURL = 'https://api.twelvedata.com';
-        this.apiKey = '044eef7ac0a744dabf3a450e52e56892'; // Free demo key with 800 calls/day
+        this.apiKey = '016bab6e5812409c95e0fa82f3730885'; // Free demo key with 800 calls/day
         this.rateLimitDelay = 2000; // 2 seconds between calls for free tier
         this.maxDailyCalls = 800;
         this.currentDayAPICalls = 0;
